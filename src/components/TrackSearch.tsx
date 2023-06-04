@@ -1,0 +1,52 @@
+import { useRef } from "react";
+import { usePlayTrack } from "../lib/zustand";
+import useHandlePlay from "../hooks/useHandlePlay";
+import { useHover } from "usehooks-ts";
+import Image from "next/legacy/image";
+import { FaPause, FaPlay } from "react-icons/fa";
+
+interface IProps {
+  track: SpotifyApi.TrackObjectFull;
+}
+
+const TrackSearch = ({ track }: IProps) => {
+  const playingTrack = usePlayTrack((state) => state.playingTrack);
+  const isPlaying = usePlayTrack((state) => state.isPlaying);
+  const handlePlay = useHandlePlay();
+  const hoverRef = useRef(null);
+  // React UI sensor hook that determine if the mouse element is in the hover element
+  // using Javascript Typescript instead CSS
+  const isHover = useHover(hoverRef);
+
+  return (
+    <div
+      className="p-2 cursor-pointer hover:bg-zinc-800 rounded-lg"
+      ref={hoverRef}
+      onClick={() => handlePlay(track)}
+    >
+      <div className="gap-x-4 flex items-center">
+        <div className="relative">
+          <Image src={track.album.images[2].url} height={45} width={45} alt="album" />
+
+          {isHover && (
+            <div className="bg-[#00000093] absolute right-0 left-0 top-0 bottom-0 grid place-items-center">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+                {track.uri === playingTrack?.uri && isPlaying ? (
+                  <FaPause className="text-white" />
+                ) : (
+                  <FaPlay className="text-white" />
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+        <div className="space-y-2 w-1/2">
+          <p className="text-white  truncate">{track.name}</p>
+          <p className="text-gray-400 text-sm truncate">{track.artists[0].name}</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default TrackSearch;
